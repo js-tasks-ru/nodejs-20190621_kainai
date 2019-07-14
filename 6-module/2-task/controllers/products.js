@@ -41,10 +41,14 @@ module.exports.productList = async function productList(ctx, next) {
 };
 
 module.exports.productById = async function productById(ctx, next) {
-  const product = await Product.findOne({_id: ctx.params.id});
-  if (!product) {
-    ctx.throw(404);
-  } else {
+  try {
+    const product = await Product.findOne({_id: ctx.params.id});
     ctx.body = {product: {...product, id: product._id}};
+  } catch (err) {
+    if (err instanceof mongoose.CastError) {
+      ctx.throw(400);
+    } else {
+      ctx.throw(404);
+    }
   }
 };
